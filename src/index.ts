@@ -10,11 +10,12 @@ type CartItem = {
   price:number 
   quantity:number
 }
-
-const state:{
+type State={
   items:StoreItem[]
   cart:CartItem[]
-} = {
+}
+
+const state:State = {
   items: [
     {
       id: 1,
@@ -71,7 +72,7 @@ const state:{
 }
 
 function getFileName(item:StoreItem):string {
-  const fileName = `${item.id
+  const fileName:string = `${item.id
     .toString()
     .padStart(3, '0')}-${item.name.replaceAll(' ', '-')}`
 
@@ -81,26 +82,26 @@ function getFileName(item:StoreItem):string {
 /* STATE ACTIONS */
 
 function addItemToCart(itemId:number) {
-  const existingItem:CartItem = state.cart.find((item:CartItem) => item.id == itemId)
+  const existingItem:CartItem | undefined = state.cart.find((item:CartItem):boolean => item.id == itemId)
 
   if (existingItem) {
     existingItem.quantity += 1
   } else {
-    const itemToAdd:StoreItem = state.items.find(item => item.id == itemId)
+    const itemToAdd:StoreItem | undefined = state.items.find((item:StoreItem):boolean => item.id == itemId)
 
-    state.cart.push({ ...itemToAdd, quantity: 1 })
+    if(itemToAdd) state.cart.push({ ...itemToAdd, quantity: 1 })
   }
 
   renderCartItems()
 }
 
 function removeItemFromCart(itemID:number) {
-  const itemToUpdate:CartItem = state.cart.find((item:CartItem) => item.id == itemID)
+  const itemToUpdate:CartItem | undefined = state.cart.find((item:CartItem):boolean => item.id == itemID)
 
   if (itemToUpdate && itemToUpdate.quantity > 1) {
     itemToUpdate.quantity -= 1
   } else {
-    state.cart = state.cart.filter((item:CartItem) => item.id != itemID)
+    state.cart = state.cart.filter((item:CartItem):boolean => item.id != itemID)
   }
 
   renderCartItems()
@@ -108,7 +109,7 @@ function removeItemFromCart(itemID:number) {
 
 /* RENDER THE STORE */
 
-const storeItemList:HTMLUListElement = document.querySelector('.store--item-list')
+const storeItemList:HTMLUListElement | null = document.querySelector('.store--item-list')
 
 function renderStoreItem(item:StoreItem):void {
   const listItemEl:HTMLLIElement = document.createElement('li')
@@ -120,10 +121,10 @@ function renderStoreItem(item:StoreItem):void {
     <button>Add to cart</button>
   `
 
-  const addBtn:HTMLButtonElement = listItemEl.querySelector('button')
-  addBtn.addEventListener('click', () => addItemToCart(item.id))
+  const addBtn:HTMLButtonElement| null = listItemEl.querySelector('button')
+  addBtn&&addBtn.addEventListener('click', ():void => addItemToCart(item.id))
 
-  storeItemList.appendChild(listItemEl)
+  storeItemList&&storeItemList.appendChild(listItemEl)
 }
 
 function renderStoreItems():void {
@@ -134,7 +135,7 @@ renderStoreItems()
 
 /* RENDER THE CART */
 
-const cartItemList:HTMLUListElement = document.querySelector('.cart--item-list')
+const cartItemList:HTMLUListElement|null = document.querySelector('.cart--item-list')
 
 function renderCartItem(item:CartItem):void {
   const listItemEl:HTMLLIElement = document.createElement('li')
@@ -147,17 +148,17 @@ function renderCartItem(item:CartItem):void {
     <button class="quantity-btn add-btn center">+</button>
   `
 
-  const addBtn:HTMLButtonElement = listItemEl.querySelector('.add-btn')
-  addBtn.addEventListener('click', (event:Event) => addItemToCart(item.id))
+  const addBtn:HTMLButtonElement|null = listItemEl.querySelector('.add-btn')
+  addBtn&&addBtn.addEventListener('click', (event:Event):void => addItemToCart(item.id))
 
-  const removeBtn:HTMLButtonElement = listItemEl.querySelector('.remove-btn')
-  removeBtn.addEventListener('click', (event:Event) => removeItemFromCart(item.id))
+  const removeBtn:HTMLButtonElement|null = listItemEl.querySelector('.remove-btn')
+  removeBtn&&removeBtn.addEventListener('click', (event:Event):void => removeItemFromCart(item.id))
 
-  cartItemList.appendChild(listItemEl)
+  cartItemList&&cartItemList.appendChild(listItemEl)
 }
 
 function renderCartItems():void {
-  cartItemList.innerHTML = ''
+  if(cartItemList)cartItemList.innerHTML = ''
 
   state.cart.forEach(renderCartItem)
 
@@ -166,12 +167,12 @@ function renderCartItems():void {
 
 /* RENDER THE TOTAL */
 
-const totalNumber:HTMLSpanElement = document.querySelector('.total-number')
+const totalNumber:HTMLSpanElement|null = document.querySelector('.total-number')
 
 function renderTotal():void {
   let total:number = 0
 
-  state.cart.forEach((item:CartItem) => (total += item.quantity * item.price))
+  state.cart.forEach((item:CartItem):number => (total += item.quantity * item.price))
 
-  totalNumber.innerText = `£${total.toFixed(2)}`
+  if(totalNumber)totalNumber.innerText = `£${total.toFixed(2)}`
 }
